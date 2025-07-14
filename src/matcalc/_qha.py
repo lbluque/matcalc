@@ -392,4 +392,5 @@ class QHACalc(PropCalc):
             "bulk_modulus_P": qha.bulk_modulus_temperature,
             "heat_capacity_P": qha.heat_capacity_P_polyfit,
             "gruneisen_parameters": qha.gruneisen_temperature,
+            "volume_temperature": qha.volume_temperature,
         }
