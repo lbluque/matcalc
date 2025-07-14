@@ -11,6 +11,8 @@ from ._base import PropCalc
 from ._phonon import PhononCalc
 from ._relaxation import RelaxCalc
 from .backend import run_pes_calc
+from .utils import to_pmg_structure
+
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -84,6 +86,7 @@ class QHACalc(PropCalc):
         t_min: float = 0,
         fmax: float = 0.1,
         optimizer: str = "FIRE",
+        pressure: float | None = None,
         eos: str = "vinet",
         relax_structure: bool = True,
         relax_calc_kwargs: dict | None = None,
@@ -112,6 +115,7 @@ class QHACalc(PropCalc):
         :param fmax: Maximum force convergence criterion for structure relaxation, in force units.
         :param optimizer: Name of the optimizer to use for structure optimization, default is
             "FIRE".
+        :param pressure: Pressure in GPa that is added to energy as PV term.
         :param eos: Equation of state to use for calculating energy vs. volume relationships.
             Default is "vinet".
         :param relax_structure: A boolean flag indicating whether the atomic structure should be
@@ -146,6 +150,7 @@ class QHACalc(PropCalc):
         self.t_min = t_min
         self.fmax = fmax
         self.optimizer = optimizer
+        self.pressure = pressure
         self.eos = eos
         self.relax_structure = relax_structure
         self.relax_calc_kwargs = relax_calc_kwargs
@@ -225,7 +230,7 @@ class QHACalc(PropCalc):
         }
         """
         result = super().calc(structure)
-        structure_in: Structure = result["final_structure"]
+        structure_in: Structure = to_pmg_structure(result["final_structure"])
 
         if self.relax_structure:
             relaxer = RelaxCalc(
@@ -323,6 +328,7 @@ class QHACalc(PropCalc):
             free_energies: List of free energies corresponding to different volumes and temperatures.
             entropies: List of entropies corresponding to different volumes and temperatures.
             heat_capacities: List of heat capacities corresponding to different volumes and temperatures.
+            pressure: External pressure in GPa that is added to energy as PV term.
 
         Returns:
             Phonopy.qha object.
@@ -335,6 +341,7 @@ class QHACalc(PropCalc):
             entropy=np.transpose(entropies),
             cv=np.transpose(heat_capacities),
             eos=self.eos,
+            pressure=self.pressure,
             t_max=self.t_max,
         )
 
