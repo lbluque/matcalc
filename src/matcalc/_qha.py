@@ -151,6 +151,7 @@ class QHACalc(PropCalc):
         self.fmax = fmax
         self.optimizer = optimizer
         self.pressure = pressure
+        self.pressure = pressure
         self.eos = eos
         self.relax_structure = relax_structure
         self.relax_calc_kwargs = relax_calc_kwargs
@@ -230,6 +231,7 @@ class QHACalc(PropCalc):
         }
         """
         result = super().calc(structure)
+        structure_in: Structure = to_pmg_structure(result["final_structure"])
         structure_in: Structure = to_pmg_structure(result["final_structure"])
 
         if self.relax_structure:
@@ -393,4 +395,5 @@ class QHACalc(PropCalc):
             "bulk_modulus_P": qha.bulk_modulus_temperature,
             "heat_capacity_P": qha.heat_capacity_P_polyfit,
             "gruneisen_parameters": qha.gruneisen_temperature,
+            "volume_temperature": qha.volume_temperature,
         }
